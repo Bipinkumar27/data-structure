@@ -1,0 +1,46 @@
+https://leetcode.com/problems/climbing-stairs/
+
+class Solution {
+    public int climbStairs(int n) {
+
+        int[] dp = new int[n+1];
+        return bottomUp(dp, n);
+        //Arrays.fill(dp, -1);
+        //return function(dp, n);
+    }
+
+    // bottom up solution
+    public int bottomUp(int[] dp, int n){
+        if(n <= 2){
+            return n;
+        }
+        // dp[0] = 0; // from 0 stair we dont require any step to reach 0. leave it because it will always 0 at the time of intilization
+        dp[1]= 1; // from 1st stair we need 1 step to reach 0th stair
+        dp[2]= 2; // from 1st stair we can take 2 * 1 step or 2 step ek sath  to reach 0th stair
+
+        for(int i=3; i<=n; i++){ // baki ka yhaan calculate
+            dp[i] = dp[i-1] + dp[i-2];
+        }
+
+        return dp[n];
+    }
+
+    // bottom up with memoization
+    public int function(int[] dp, int n){
+        if(n < 0){
+            return 0;
+        }
+        if(n == 0){
+            return 1;
+        }
+
+        if(dp[n] != -1){
+            return dp[n];
+        }
+
+        int oneStep = function(dp, n-1);
+        int twoStep = function(dp, n-2);
+
+        return dp[n] = oneStep + twoStep;
+    }
+}
