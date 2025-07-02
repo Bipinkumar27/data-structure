@@ -1,0 +1,63 @@
+https://leetcode.com/problems/house-robber/
+
+class Solution {
+    public int rob(int[] nums) {
+        int n = nums.length;
+        int[] dp = new int[n]; // dp[i] store karega max paisa jo i-th house tak lootne pe milega (without alerting police)
+
+        return topdownRob(nums, n, dp); // iterative approach call kar rahe hain
+
+        // Arrays.fill(dp, -1); // isko use karte hain recursive + memoization (commented for now)
+        // return bottomUpRob(nums, n-1, dp); // recursive + memoization approach
+    }
+
+    // Top-down iterative DP approach
+    public int topdownRob(int[] nums, int size, int[] dp) {
+
+        if (size == 1) {
+            return nums[0]; // agar sirf 1 house hai, to wahi loot lo
+        }
+
+        if (size == 2) {
+            return Math.max(nums[0], nums[1]); // agar 2 house hain, to jisme zyada paisa hai wo choose karo
+        }
+
+        dp[0] = nums[0]; // pehle ghar ka paisa
+        dp[1] = Math.max(nums[0], nums[1]); // dusre ghar tak ka max paisa (pehla ya dusra)
+
+        // ab teesre ghar se lekar end tak loop karenge
+        for (int i = 2; i < size; i++) {
+            // ya to pichla ghar looted hai (to current skip) ya current ghar looto aur i-2 ka result lo
+            dp[i] = Math.max(dp[i - 1], nums[i] + dp[i - 2]);
+        }
+
+        return dp[size - 1]; // last house tak ka maximum paisa return karo
+    }
+
+    // Bottom-up recursive + memoization DP approach
+    public int bottomUpRob(int[] nums, int n, int[] dp) {
+        if (n == 0) {
+            return nums[0]; // sirf pehla ghar
+        }
+        if (n == 1) {
+            return Math.max(nums[0], nums[1]); // pehla ya dusra ghar
+        }
+
+        if (dp[n] != -1) {
+            return dp[n]; // agar already calculated hai to wahi return karo
+        }
+
+        int take = 0;
+        if (n > 1) {
+            // current ghar looto to pichla ghar (n-1) skip karna padega, isliye n-2
+            take = nums[n] + bottomUpRob(nums, n - 2, dp);
+        }
+
+        // ya current ghar skip karo aur pehle wale ka result lo
+        int notTake = bottomUpRob(nums, n - 1, dp);
+
+        // dono me se maximum paisa choose karo
+        return dp[n] = Math.max(take, notTake);
+    }
+}
+}

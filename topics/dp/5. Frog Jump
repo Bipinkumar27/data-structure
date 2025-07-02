@@ -1,0 +1,64 @@
+https://www.geeksforgeeks.org/problems/geek-jump
+
+class Solution {
+    int minCost(int[] height) {
+        // height[] ka size nikal rahe hain
+        int size = height.length;
+
+        // dp[i] store karega minimum cost to reach i-th stair
+        int[] dp = new int[size];
+        //Arrays.fill(dp, -1);
+        //return bottomUpMinCost(height, dp, size-1);
+
+        // top-down approach se minimum cost nikal rahe hain
+        return topDownMinCost(height, dp, size - 1);
+    }
+
+    // Top-down (iterative) approach - base se end tak ja rahe hain
+    public int topDownMinCost(int[] heights, int[] dp, int n) {
+        dp[0] = 0; // first stair tak pahuchne ka cost 0 hoga
+        //dp[1] = Math.abs(heights[1] - heights[0]);
+
+        for (int i = 1; i <= n; i++) {
+            // ek step peeche se jump karne ka cost
+            int oneJump = dp[i - 1] + Math.abs(heights[i] - heights[i - 1]);
+
+            int twoJump = Integer.MAX_VALUE;
+            if (i > 1) {
+                // do step peeche se jump karne ka cost (agar possible ho)
+                twoJump = dp[i - 2] + Math.abs(heights[i] - heights[i - 2]);
+            }
+
+            // dono jumps me se minimum cost choose kar rahe hain
+            dp[i] = Math.min(oneJump, twoJump);
+        }
+
+        // last stair tak pahuchne ka minimum cost return kar rahe hain
+        return dp[n];
+    }
+
+    // Bottom-up (recursive + memoization) approach
+    public int bottomUpMinCost(int[] heights, int[] dp, int n) {
+        if (n == 0) {
+            // agar pehla stair hai to cost 0 hoga
+            return 0;
+        }
+
+        if (dp[n] != -1) {
+            // agar pehle se calculate kiya hua hai to wahi return kar do
+            return dp[n];
+        }
+
+        // ek step peeche se jump ka cost
+        int oneJump = bottomUpMinCost(heights, dp, n - 1) + Math.abs(heights[n] - heights[n - 1]);
+
+        int twoJump = Integer.MAX_VALUE;
+        if (n > 1) {
+            // do step peeche se jump ka cost (agar possible ho to)
+            twoJump = bottomUpMinCost(heights, dp, n - 2) + Math.abs(heights[n] - heights[n - 2]);
+        }
+
+        // minimum cost ko dp[n] me store kar ke return kar rahe hain
+        return dp[n] = Math.min(oneJump, twoJump);
+    }
+}
