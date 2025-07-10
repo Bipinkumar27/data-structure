@@ -1,0 +1,81 @@
+// User function Template for Java
+
+class Solution {
+    public int maximumPoints(int arr[][]) {
+        // Number of days aur last task ka index initialize kar rahe hain
+        int day = arr.length - 1;
+        int last = 3;
+
+        // DP table create kar rahe hain jo har din aur last task ke liye maximum points store karega
+        int[][] dp = new int[day + 1][last + 1];
+
+        // DP table ko -1 se fill kar rahe hain taaki uncalculated values ko indicate kar sake
+        for (int[] row : dp) {
+            Arrays.fill(row, -1);
+        }
+
+        // Top-down approach se result return kar rahe hain
+        return findMaxPointTopDown(arr);
+    }
+
+    // Top-down iterative DP approach jo maximum points calculate karega
+    public int findMaxPointTopDown(int arr[][]) {
+        int totalDays = arr.length; // Total number of days
+        int lastDay = 4; // Number of tasks + 1 (taaki "no task" case handle ho sake)
+        int[][] dp = new int[totalDays][lastDay]; // DP table jo results store karega
+
+        // Base case: Pehle din ke liye DP table fill kar rahe hain
+        dp[0][0] = Math.max(arr[0][1], arr[0][2]); // Max points agar last task 0 tha
+        dp[0][1] = Math.max(arr[0][0], arr[0][2]); // Max points agar last task 1 tha
+        dp[0][2] = Math.max(arr[0][0], arr[0][1]); // Max points agar last task 2 tha
+        dp[0][3] = Math.max(arr[0][0], Math.max(arr[0][1], arr[0][2])); // Max points agar koi task nahi kiya
+
+        // Har din ke liye iterate karte hue maximum points calculate kar rahe hain
+        for (int day = 1; day < totalDays; day++) {
+            for (int last = 0; last < 4; last++) {
+                // Har task ke liye iterate karte hue points calculate kar rahe hain
+                for (int task = 0; task < 3; task++) {
+                    if (task != last) { // Ensure karte hain ki current task last task ke same na ho
+                        int points = arr[day][task] + dp[day - 1][task]; // Current task ke points
+                        dp[day][last] = Math.max(dp[day][last], points); // DP table ko maximum points ke saath update karte hain
+                    }
+                }
+            }
+        }
+
+        // Last din ke liye maximum points return karte hain
+        return dp[totalDays - 1][lastDay - 1];
+    }
+
+    // Bottom-up recursive + memoization DP approach jo maximum points calculate karega
+    public int findMaxPointBottomUp(int arr[][], int[][] dp, int day, int last) {
+        // Base case: Agar pehla din hai, to maximum points calculate karte hain
+        if (day == 0) {
+            int max = 0;
+            for (int i = 0; i < 3; i++) {
+                if (last != i) { // Ensure karte hain ki current task last task ke same na ho
+                    max = Math.max(max, arr[day][i]); // Max points update karte hain
+                }
+            }
+            return max;
+        }
+
+        // Agar value already calculated hai, to usko return karte hain
+        if (dp[day][last] != -1) {
+            return dp[day][last];
+        }
+
+        int max = 0; // Current din ke liye max points initialize karte hain
+
+        // Har task ke liye iterate karte hue maximum points calculate karte hain
+        for (int task = 0; task < 3; task++) {
+            if (last != task) { // Ensure karte hain ki current task last task ke same na ho
+                int currMax = arr[day][task] + findMaxPointBottomUp(arr, dp, day - 1, task); // Current task ke points
+                max = Math.max(max, currMax); // Max points update karte hain
+            }
+        }
+
+        // Result ko DP table me store karte hain aur return karte hain
+        return dp[day][last] = max;
+    }
+}

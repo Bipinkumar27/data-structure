@@ -1,0 +1,73 @@
+https://leetcode.com/problems/unique-paths/
+
+
+class Solution {
+    public int uniquePaths(int m, int n) {
+        // DP table banate hain jo har cell tak pahuchne ke unique paths store karega
+        int[][] dp = new int[m][n];
+
+        /* Uncomment karo agar top-down approach use karna ho
+        // DP table ko -1 se initialize karte hain taaki uncalculated values ko indicate kar sake
+        for(int[] arr: dp){
+            Arrays.fill(arr, -1);
+        }
+
+        // Top-down approach se unique paths calculate karte hain
+        return topDownUniquePaths(m-1, n-1, dp);
+        */
+
+        // Bottom-up approach se unique paths calculate karte hain
+        return botttomUpUniquePaths(m, n, dp);
+    }
+
+    public int botttomUpUniquePaths(int m, int n, int[][] dp){
+        // Har cell ke liye iterate karte hain
+        for(int i=0; i< m; i++){
+            for(int j=0; j< n; j++){
+                // Base case: Starting cell ke liye ek hi path hoga
+                if(i==0 && j==0){
+                    dp[i][j] = 1;
+                }
+                else{
+                    // Top aur left cells se paths calculate karte hain
+                    int top = 0;
+                    int left = 0;
+                    if(i>0){
+                        top = dp[i-1][j];
+                    }
+                    if(j>0){
+                        left = dp[i][j-1];
+                    }
+                    // Current cell tak total paths top aur left ka sum hoga
+                    dp[i][j] = top+left;
+                }
+            }
+        }
+        // Bottom-right cell tak total paths return karte hain
+        return dp[m-1][n-1];
+    }
+
+    public int topDownUniquePaths(int m, int n, int[][] dp){
+        // Base case: Agar starting cell par hain to ek hi path hoga
+        if(m ==0 && n==0){
+            return 1;
+        }
+
+        // Agar out of bounds hain to koi path nahi hoga
+        if(m<0 || n<0){
+            return 0;
+        }
+
+        // Agar value pehle se calculated hai to wahi return karte hain
+        if(dp[m][n] != -1){
+            return dp[m][n];
+        }
+
+        // Top aur left cells se paths recursively calculate karte hain
+        int top = topDownUniquePaths(m-1, n, dp);
+        int left = topDownUniquePaths(m, n-1, dp);
+
+        // Result ko DP table me store karte hain aur return karte hain
+        return dp[m][n] = top+left;
+    }
+}

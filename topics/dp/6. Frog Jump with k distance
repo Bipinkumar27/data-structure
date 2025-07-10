@@ -1,0 +1,39 @@
+class Solution {
+    public int frogJump(int[] heights, int k) {
+        // height[] ka size nikal rahe hain
+        int size = heights.length;
+
+        // dp[i] store karega minimum cost to reach i-th stair
+        int[] dp = new int[size];
+        Arrays.fill(dp, -1);
+        return bottomUpMinCost(heights, dp, size-1, k);
+
+    }
+
+
+    public int bottomUpMinCost(int[] heights, int[] dp, int n, int k) {
+        if (n == 0) {
+            // agar pehla stair hai to cost 0 hoga
+            return 0;
+        }
+
+        if (dp[n] != -1) {
+            // agar pehle se calculate kiya hua hai to wahi return kar do
+            return dp[n];
+        }
+
+        int minJump = Integer.MAX_VALUE;
+        for(int i= 1 ; i<= k; i++){
+            if(n-i >= 0){
+                int jump = bottomUpMinCost(height, dp, n-i, k) + math.abs(height[n] - heights[n-i]);
+                minJump = math.min(minJump, jump);
+            }
+        }
+
+        // minimum cost ko dp[n] me store kar ke return kar rahe hain
+        return dp[n] = minJump;
+    }
+
+
+
+}
