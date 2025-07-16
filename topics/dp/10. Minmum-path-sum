@@ -1,0 +1,63 @@
+https://leetcode.com/problems/minimum-path-sum/
+class Solution {
+    static final int N = 200; // yeh extra value overflow se bachne ke liye add ki gayi hai
+
+    public int minPathSum(int[][] grid) {
+        int m = grid.length; // grid ke rows ki sankhya
+        int n = grid[0].length; // grid ke columns ki sankhya
+
+        int[][] dp = new int[m][n]; // dp array initialize kiya
+
+       /* for(int[] gridRow: dp){
+            Arrays.fill(gridRow, -1);
+        }
+
+        return minPathSumBottomUP(grid, dp, m-1, n-1);
+        */ // agar recursive bottom-up approach use karni ho to uncomment karo
+
+       return minPathTopDown(grid, dp, m-1, n-1); // top-down DP approach call
+    }
+
+    public int minPathTopDown(int[][] grid, int[][] dp, int m, int n) {
+        // sab cells pe iterate karte hue DP table fill karo
+        for (int i = 0; i <= m; i++) {
+            for (int j = 0; j <= n; j++) {
+                if (i == 0 && j == 0) {
+                    dp[i][j] = grid[i][j]; // starting point ka value
+                }
+                int up = grid[i][j]; // upar se aane wala cost
+                int left = grid[i][j]; // left se aane wala cost
+
+                if (i > 0) {
+                    up += dp[i - 1][j] + N; // upar wale cell ka dp plus extra N
+                }
+                if (j > 0) {
+                    left += dp[i][j - 1] + N; // left wale cell ka dp plus extra N
+                }
+
+                dp[i][j] = Math.min(up, left); // dono path me se chhota choose karo
+            }
+        }
+        return dp[m][n]; // destination tak ka minimum path sum
+    }
+
+    public int minPathSumBottomUP(int[][] grid, int[][] dp, int m, int n) {
+        // recursive approach with memoization (bottom-up naam sahi nahi, lekin logic yahi hai)
+        if (m == 0 && n == 0) {
+            return grid[m][n]; // base case: starting cell
+        }
+
+        if (m < 0 || n < 0) {
+            return Integer.MAX_VALUE - 200; // invalid cell ke liye large value
+        }
+
+        if (dp[m][n] != -1) {
+            return dp[m][n]; // agar value pehle se calculate hai to return karo
+        }
+
+        int up = grid[m][n] + minPathSumBottomUP(grid, dp, m - 1, n); // upar se path
+        int left = grid[m][n] + minPathSumBottomUP(grid, dp, m, n - 1); // left se path
+
+        return dp[m][n] = Math.min(up, left); // memoize karke minimum return karo
+    }
+}
