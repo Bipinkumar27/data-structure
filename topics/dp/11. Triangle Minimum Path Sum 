@@ -1,0 +1,64 @@
+https://leetcode.com/problems/triangle/description/
+
+public int minimumTotal(List<List<Integer>> triangle) {
+        // triangle ki total levels m me store kar rahe hain
+        int m = triangle.size();
+        // last level me kitne elements hain, woh n me store
+        int n = triangle.get(m-1).size();
+
+        // dp array banaya for memoization / tabulation
+        int[][] dp = new int[m][n];
+        /*
+        // Agar bottom-up recursion use karna ho toh yeh code uncomment kar sakte ho
+        for(int[] row: dp){
+            Arrays.fill(row, -1);
+        }
+        return minimumTotalBottomup(triangle, dp, 0, 0, m-1);
+        */
+
+        // Top-down tabulation approach call kar rahe hain
+        return minimumTotalTopDown(triangle, dp, m-1);
+    }
+
+    // Bottom-up recursive approach with memoization (optional)
+    public int minimumTotalBottomup(List<List<Integer>> triangle, int[][] dp, int level, int index, int end){
+        // base case: jab last level tak pahunch gaye
+        if(level == end){
+            return triangle.get(level).get(index);
+        }
+
+        // agar pehle se compute kar chuke hain toh direct return
+        if(dp[level][index] != -1){
+            return dp[level][index];
+        }
+
+        // do possible paths: aage same index ya index+1
+        int down = triangle.get(level).get(index)
+                 + minimumTotalBottomup(triangle, dp, level+1, index, end);
+        int right = triangle.get(level).get(index)
+                  + minimumTotalBottomup(triangle, dp, level+1, index+1, end);
+
+        // memoize karke return kar do
+        return dp[level][index] = Math.min(down, right);
+    }
+
+    // Top-down tabulation approach (bottom-up DP)
+    public int minimumTotalTopDown(List<List<Integer>> triangle, int[][] dp, int end){
+        // initialize dp for last row as same as triangle last row
+        for(int index = 0; index <= end; index++){
+            dp[end][index] = triangle.get(end).get(index);
+        }
+
+        // upar ki taraf iterate karte hue minimum path calc karo
+        for(int level = end - 1; level >= 0; level--){
+            for(int index = 0; index <= level; index++){
+                // niche ke do options me se chota choose karenge
+                int down = triangle.get(level).get(index) + dp[level+1][index];
+                int right = triangle.get(level).get(index) + dp[level+1][index+1];
+                dp[level][index] = Math.min(down, right);
+            }
+        }
+
+        // final answer root pe mil jayega
+        return dp[0][0];
+    }
