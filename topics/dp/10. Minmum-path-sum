@@ -1,4 +1,6 @@
 https://leetcode.com/problems/minimum-path-sum/
+// from fix position to fixed ending position (0,0) -> (m-1,n-1)
+
 class Solution {
     static final int N = 200; // yeh extra value overflow se bachne ke liye add ki gayi hai
 

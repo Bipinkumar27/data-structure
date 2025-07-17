@@ -1,4 +1,6 @@
 https://leetcode.com/problems/triangle/description/
+// from fix position to variable ending position from (0,0) -> any position (m-1, n-1)
+
 
 public int minimumTotal(List<List<Integer>> triangle) {
         // triangle ki total levels m me store kar rahe hain
