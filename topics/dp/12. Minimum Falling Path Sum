@@ -1,0 +1,100 @@
+Question: https://leetcode.com/problems/minimum-falling-path-sum/
+
+class Solution {
+    // Ye function minimum falling path sum calculate karega
+    public int minFallingPathSum(int[][] matrix) {
+        int size = matrix.length;
+        int[][] dp = new int[size][size];
+
+        /* // Ye commented code recursive (top-down) approach ka tha
+        for(int[] arr: dp){
+            Arrays.fill(arr, 1000); // initially sabko bada number (1000) se fill kar diya
+        }
+
+        int minFallingPathSum = (int)1e9; // initially ek bada number le liya hai
+        for(int i=0; i<size; i++){
+            // Har column ke liye minimum falling path sum calculate kar rahe hain
+            minFallingPathSum = Math.min(minFallingPathSum, minFallingPathSumBottomUp(matrix, dp, size-1, i));
+        }*/
+
+        // bottom-up DP approach call kar rahe hain
+        return minFallingPathSumBottomUp(matrix, dp, size);
+    }
+
+    // Ye method recursive (top-down) DP ke liye hai
+    public int minFallingPathSumBottomUp(int[][] matrix, int[][] dp, int row, int col){
+
+        // Base condition jab hum first row pe pahunch gaye toh wahi element return hoga
+        if(row == 0){
+            return matrix[row][col];
+        }
+
+        // Agar value pehle hi calculate ho gayi hai toh dobara calculate nahi karenge
+        if(dp[row][col] != 1000){
+            return dp[row][col];
+        }
+
+        // Teeno possible directions ke liye sum calculate kar rahe hain
+        int left = (int)1e9;
+        int right = (int)1e9;
+
+        // Direct niche wale cell ka sum
+        int down = matrix[row][col] + minFallingPathSumBottomUp(matrix, dp, row-1, col);
+
+        // Diagonal right (left-upper diagonal)
+        if(col > 0){
+            right = matrix[row][col] + minFallingPathSumBottomUp(matrix, dp, row-1, col-1);
+        }
+
+        // Diagonal left (right-upper diagonal)
+        if(col < matrix.length-1){
+            left = matrix[row][col] + minFallingPathSumBottomUp(matrix, dp, row-1, col+1);
+        }
+
+        // Teenon me se minimum store kar rahe hain DP me
+        return dp[row][col] = Math.min(down,Math.min(left, right));
+    }
+
+
+    // Ye method iterative (bottom-up) DP ke liye hai
+    public int minFallingPathSumBottomUp(int[][] matrix, int[][] dp, int size){
+
+        // First row same hogi kyunki wahan se hi start karte hain
+        for(int i=0; i<size; i++){
+            dp[0][i] = matrix[0][i];
+        }
+
+        // Ab har row aur column pe minimum sum calculate karenge
+        for(int row= 1; row<size; row++){
+            for(int col= 0; col<size; col++){
+                int left = (int)1e9;
+                int right = (int)1e9;
+
+                // Direct upar se neeche wala cell
+                int down = matrix[row][col] + dp[row-1][col];
+
+                // Upar wale ka left diagonal cell
+                if(col > 0){
+                    right = matrix[row][col] + dp[row-1][col-1];
+                }
+
+                // Upar wale ka right diagonal cell
+                if(col < size-1){
+                    left = matrix[row][col] + dp[row-1][col+1];
+                }
+
+                // Teenon me se minimum lekar dp me save kar rahe hain
+                dp[row][col] = Math.min(down,Math.min(left, right));
+            }
+        }
+
+        // Last row me se minimum falling path sum nikal rahe hain
+        int minFallingPathSum = (int)1e9;
+        for(int col=0; col<size; col++){
+            minFallingPathSum = Math.min(minFallingPathSum, dp[size-1][col]);
+        }
+
+        // Final minimum falling path sum return kar rahe hain
+        return minFallingPathSum;
+    }
+}
