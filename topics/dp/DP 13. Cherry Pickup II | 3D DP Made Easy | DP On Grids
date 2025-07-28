@@ -1,0 +1,146 @@
+https://leetcode.com/problems/cherry-pickup-ii/
+
+ class Solution {
+     static int rowSize;
+     static int colSize;
+
+     public int cherryPickup(int[][] grid) {
+         rowSize = grid.length;
+         colSize = grid[0].length;
+
+         // 3D DP array banaya: dp[row][robot1_col][robot2_col]
+         int[][][] dp = new int[rowSize][colSize][colSize];
+
+         /*
+         // Top-down approach ke liye dp ko -1 se initialize karna zaroori hai
+         for (int[][] matrix : dp) {
+             for (int[] row : matrix) {
+                 Arrays.fill(row, -1); // sab values -1 kar rahe taaki memoization kaam kare
+             }
+         }
+         // recursion with memoization call
+         return cherryPickBottomUp(grid, dp, 0, 0, colSize - 1);
+         */
+
+         // tabulation approach call (actually named topDown but it's iterative)
+         return cherryPickTopDown(grid, dp);
+     }
+
+     public int cherryPickTopDown(int[][] grid, int[][][] dp) {
+         int n = grid.length;
+         int m = grid[0].length;
+
+         // Last row ke liye base case fill kar rahe hain
+         for (int robot1CurrCol = 0; robot1CurrCol < m; robot1CurrCol++) {
+             for (int robot2CurrCol = 0; robot2CurrCol < m; robot2CurrCol++) {
+                 if (robot1CurrCol == robot2CurrCol) {
+                     // dono robot same cell pe hain, to ek hi cherry milegi
+                     dp[n - 1][robot1CurrCol][robot2CurrCol] = grid[n - 1][robot1CurrCol];
+                 } else {
+                     // dono alag alag cells pe hain, to dono cherries add karo
+                     dp[n - 1][robot1CurrCol][robot2CurrCol] =
+                             grid[n - 1][robot1CurrCol] + grid[n - 1][robot2CurrCol];
+                 }
+             }
+         }
+
+         // ab peeche se fill karte ja rahe hain (bottom-up)
+         for (int robotsCurrRow = n - 2; robotsCurrRow >= 0; robotsCurrRow--) {
+             for (int robot1CurrCol = 0; robot1CurrCol < m; robot1CurrCol++) {
+                 for (int robot2CurrCol = 0; robot2CurrCol < m; robot2CurrCol++) {
+
+                     int max = (int) -1e8; // initially max ko bahut chhoti value diya
+
+                     // 3 options for each robot: -1, 0, +1 -> left, same, right
+                     for (int i = -1; i <= 1; i++) {
+                         for (int j = -1; j <= 1; j++) {
+                             int value = 0;
+
+                             // current row ke liye value calculate karo
+                             if (robot1CurrCol == robot2CurrCol) {
+                                 // agar dono ek hi cell pe hain to ek hi cherry milegi
+                                 value = grid[robotsCurrRow][robot1CurrCol];
+                             } else {
+                                 // dono alag jagah hain to dono ki cherry add karo
+                                 value = grid[robotsCurrRow][robot1CurrCol] + grid[robotsCurrRow][robot2CurrCol];
+                             }
+
+                             // next row ke move ke liye boundary check karo
+                             if (robot1CurrCol + i >= 0 && robot1CurrCol + i < m
+                                     && robot2CurrCol + j >= 0 && robot2CurrCol + j < m) {
+                                 value += dp[robotsCurrRow + 1][robot1CurrCol + i][robot2CurrCol + j];
+                             }
+
+                             max = Math.max(max, value); // max value store kar rahe hain
+                         }
+                     }
+
+                     dp[robotsCurrRow][robot1CurrCol][robot2CurrCol] = max;
+                 }
+             }
+         }
+
+         // top-left se start (robot1: col 0, robot2: col m-1)
+         return dp[0][0][m - 1];
+     }
+
+     public int cherryPickBottomUp(int[][] grid, int[][][] dp, int robotsCurrRow, int robot1CurrCol, int robot2CurrCol) {
+         // agar koi robot grid ke bahar chala gaya to invalid move
+         if (robot1CurrCol < 0 || robot2CurrCol < 0 || robot1CurrCol > colSize - 1 || robot2CurrCol > colSize - 1) {
+             return (int) -1e8;
+         }
+
+         // agar last row pe pahuch gaye to base case
+         if (robotsCurrRow == rowSize - 1) {
+             if (robot1CurrCol == robot2CurrCol) {
+                 return grid[robotsCurrRow][robot1CurrCol];
+             } else {
+                 return grid[robotsCurrRow][robot1CurrCol] + grid[robotsCurrRow][robot2CurrCol];
+             }
+         }
+
+         // agar dp me already stored hai to wahi return karo
+         if (dp[robotsCurrRow][robot1CurrCol][robot2CurrCol] != -1) {
+             return dp[robotsCurrRow][robot1CurrCol][robot2CurrCol];
+         }
+
+         int max = 0;
+
+         // 3x3 = 9 possible moves for the two robots
+         for (int i = -1; i <= 1; i++) {
+             for (int j = -1; j <= 1; j++) {
+                 if (robot1CurrCol == robot2CurrCol) {
+                     // agar dono ek hi cell pe to ek hi cherry
+                     max = Math.max(max, grid[robotsCurrRow][robot1CurrCol]
+                             + cherryPickBottomUp(grid, dp, robotsCurrRow + 1, robot1CurrCol + i, robot2CurrCol + j));
+                 } else {
+                     // dono alag alag cells pe to dono cherries count karo
+                     max = Math.max(max,
+                             (grid[robotsCurrRow][robot1CurrCol] + grid[robotsCurrRow][robot2CurrCol])
+                                     + cherryPickBottomUp(grid, dp, robotsCurrRow + 1,
+                                     robot1CurrCol + i, robot2CurrCol + j));
+                 }
+             }
+         }
+
+         // dp me result store karo
+         return dp[robotsCurrRow][robot1CurrCol][robot2CurrCol] = max;
+     }
+ }
+
+
+/*
+Time Complexity:
+
+1. cherryPickTopDown()  --> Bottom-Up DP
+   - Loops over all rows, and all combinations of robot1 & robot2 columns
+   - For each pair of columns, 9 transitions are checked (3 moves per robot)
+   - Total Time: O(n * m * m * 9) => O(n * m^2)
+
+2. cherryPickBottomUp()  --> Top-Down DP with Memoization
+   - Each unique state (row, col1, col2) is computed once
+   - 9 possible next states per recursion
+   - Total Time: O(n * m * m)
+
+Space Complexity for both: O(n * m * m)
+*/
